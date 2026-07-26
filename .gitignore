@@ -1,0 +1,28 @@
+# Environment Variables
+.env
+
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+.venv/
+venv/
+env/
+
+# dbt artifacts
+processing/dbt_pricing/logs/
+processing/dbt_pricing/target/
+processing/dbt_pricing/dbt_packages/
+
+# Docker Volumes 
+minio_data/
+
+# IDEs
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# OS files
+.DS_Store
+Thumbs.db
