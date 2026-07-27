@@ -1,0 +1,4 @@
+name: 'dbt_pricing'
+version: '1.0.0'
+profile: 'dbt_pricing'
+model-paths: ["models"]
