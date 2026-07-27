@@ -1,0 +1,16 @@
+dbt_pricing:
+  target: dev
+  outputs:
+    dev:
+      type: duckdb
+      path: ':memory:'
+      extensions:
+        - httpfs
+        - aws
+      config_options:
+        s3.access_key_id: 'minioadmin'
+        s3.secret_access_key: 'minioadmin'
+        s3.endpoint: 'http://localhost:9000'
+        s3.region: 'us-east-1'
+        s3.url_style: 'path'
+        s3.use_ssl: false
