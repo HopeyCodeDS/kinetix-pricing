@@ -1,6 +1,6 @@
 -- Enable logical replication
 -- Create replication user for Debezium
-CREATE ROLE replicator WITH REPLICATION PASSWORD 'replicator_password' LOGIN;
+CREATE ROLE replicator WITH SUPERUSER REPLICATION PASSWORD 'replicator_password' LOGIN;
 GRANT pg_read_all_data TO replicator;
 
 -- Create Schema and Tables
