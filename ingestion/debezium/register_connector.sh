@@ -19,6 +19,7 @@ curl -i -X POST -H "Accept:application/json" -H "Content-Type:application/json" 
     "database.server.name": "kinetix_db",
     "topic.prefix": "dbserver1",
     "table.include.list": "public.orders",
+    "plugin.name": "pgoutput",
     "schema.history.internal.kafka.bootstrap.servers": "kafka:9092",
     "schema.history.internal.kafka.topic": "schema-changes.orders",
     "plugin.path": "/kafka/connect"
