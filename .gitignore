@@ -104,3 +104,12 @@ $RECYCLE.BIN/
 *.log
 nohup.out
 .DS_Store
+
+# ==========================================
+# Application & Framework Logs (Global)
+# ==========================================
+# dbt, Flink, Python, and general application logs
+logs/
+log/
+*.log
+*.log.*
