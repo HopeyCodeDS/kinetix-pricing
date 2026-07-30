@@ -1,28 +1,106 @@
-# Environment Variables
-.env
-
-# Python
-__pycache__/
-*.py[cod]
-*$py.class
+# ==========================================
+# Python & Virtual Environments
+# ==========================================
 .venv/
 venv/
 env/
+ENV/
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+pip-log.txt
+pip-delete-this-directory.txt
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+.coverage
+htmlcov/
+*.cover
 
-# dbt artifacts
-processing/dbt_pricing/logs/
+# ==========================================
+# Environment Variables & Secrets
+# ==========================================
+# NEVER commit credentials. Use .env.example for templates.
+.env
+.env.local
+.env.*.local
+*.pem
+*.key
+
+# ==========================================
+# dbt (Data Build Tool)
+# ==========================================
+# Build artifacts & compiled SQL (regenerated on every run)
 processing/dbt_pricing/target/
+processing/dbt_pricing/logs/
 processing/dbt_pricing/dbt_packages/
 
-# Docker Volumes 
-minio_data/
+# Local DuckDB database file (regenerated artifact)
+processing/dbt_pricing/dbt.duckdb
+processing/dbt_pricing/*.duckdb
 
-# IDEs
+# Local parquet/data files downloaded for testing (data artifacts)
+processing/dbt_pricing/*.parquet
+processing/dbt_pricing/bronze_orders.parquet
+
+# User-specific machine settings
+processing/dbt_pricing/.user.yml
+
+# ==========================================
+# Feast (Feature Store)
+# ==========================================
+# The local SQLite registry
+processing/feature_store/data/registry.db
+processing/feature_store/data/*.db
+
+# Feast generated Python caches
+processing/feature_store/**/__pycache__/
+
+# ==========================================
+# Docker & Local Volumes
+# ==========================================
+# Local data volumes if mounted directly (usually in Docker named volumes, but just in case)
+minio_data/
+postgres_data/
+kafka_data/
+zookeeper_data/
+
+# Docker debug artifacts
+.docker/
+
+# ==========================================
+# IDEs & Operating Systems
+# ==========================================
+# Mac
+.DS_Store
+.AppleDouble
+.LSOverride
+
+# Windows
+Thumbs.db
+ehthumbs.db
+Desktop.ini
+$RECYCLE.BIN/
+
+# VS Code (uncomment the next line if you want to share workspace settings)
+# .vscode/settings.json
 .vscode/
 .idea/
 *.swp
 *.swo
+*~
 
-# OS files
+# ==========================================
+# Jupyter
+# ==========================================
+.ipynb_checkpoints/
+*.ipynb_checkpoints
+
+# ==========================================
+# Logs & Misc
+# ==========================================
+*.log
+nohup.out
 .DS_Store
-Thumbs.db
