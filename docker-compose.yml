@@ -79,5 +79,33 @@ services:
       exit 0;
       "
 
+  # 5. Stream Processing Engine (Apache Flink)
+  flink-jobmanager:
+    image: flink:1.17.1-scala_2.12-java11
+    ports:
+      - "8081:8081" # Flink Web UI
+    command: jobmanager
+    environment:
+      - |
+        FLINK_PROPERTIES=
+        jobmanager.rpc.address: flink-jobmanager
+        state.backend: filesystem
+        state.checkpoints.dir: s3://kinetix-lakehouse/flink/checkpoints
+        high-availability.type: zookeeper
+        high-availability.storageDir: file:///tmp/flink/ha/
+    volumes:
+      - ./processing/flink_jobs:/opt/flink/jobs  # Python script goes in here
+
+  flink-taskmanager:
+    image: flink:1.17.1-scala_2.12-java11
+    depends_on:
+      - flink-jobmanager
+    command: taskmanager
+    environment:
+      - |
+        FLINK_PROPERTIES=
+        jobmanager.rpc.address: flink-jobmanager
+        taskmanager.numberOfTaskSlots: 2
+
 volumes:
   minio_data:
