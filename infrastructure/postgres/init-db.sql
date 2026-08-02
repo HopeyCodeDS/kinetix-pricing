@@ -32,3 +32,12 @@ INSERT INTO orders (product_id, quantity, total_amount) VALUES
 
 -- Grant permissions to replication user
 GRANT SELECT ON ALL TABLES IN SCHEMA public TO replicator;
+
+-- Table for Flink to write real-time aggregated stats into
+CREATE TABLE product_stats (
+    product_id INT,
+    avg_quantity DOUBLE PRECISION,
+    window_start TIMESTAMP,
+    window_end TIMESTAMP,
+    PRIMARY KEY (product_id, window_start)
+);
