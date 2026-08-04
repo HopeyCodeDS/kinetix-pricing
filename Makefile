@@ -5,7 +5,7 @@ setup:
 	@echo "Starting Docker Compose..."
 	docker-compose up -d
 	@echo "Waiting for services to be healthy..."
-	sleep 10
+	@python -c "import time; time.sleep(10)"
 	@echo "Registering Debezium CDC Connector..."
 	./ingestion/debezium/register_connector.sh
 
