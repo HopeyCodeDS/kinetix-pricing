@@ -1,11 +1,19 @@
 from pyflink.table import EnvironmentSettings, TableEnvironment
-import os
-import time
 
 def main():
     print("🚀 Initializing Flink Table Environment...")
     env_settings = EnvironmentSettings.in_streaming_mode()
     table_env = TableEnvironment.create(env_settings)
+
+        # --- CRITICAL FIX: Explicitly declare required JARs for PyFlink ---
+    jar_paths = [
+        "file:///opt/flink/lib/flink-connector-jdbc-3.1.1-1.17.jar", 
+        "file:///opt/flink/lib/postgresql-42.6.0.jar"
+    ]
+    table_env.get_config().get_configuration().set_string(
+        "pipeline.jars", ";".join(jar_paths)
+    )
+    print("📦 Loaded required JDBC JARs")
 
     # 1. Define the Kafka Source (Reading Debezium JSON)
     print("📡 Registering Kafka Source...")
@@ -46,23 +54,24 @@ def main():
         )
     """)
 
-    # 3. The Magic: Stateful Windowed Aggregation
-    # Grouping by product_id and calculating the average quantity over a 1-minute tumbling window
-    print("⚙️ Executing Stream Processing Pipeline (1-min tumbling window)...")
+    # 3. Stateful Windowed Aggregation (10-second window for fast testing)
+    print("⚙️ Executing Stream Processing Pipeline (10-sec tumbling window)...")
     result_table = table_env.sql_query("""
         SELECT 
             product_id,
             AVG(quantity) as avg_quantity,
-            TUMBLE_START(order_timestamp, INTERVAL '1' MINUTE) as window_start,
-            TUMBLE_END(order_timestamp, INTERVAL '1' MINUTE) as window_end
+            TUMBLE_START(order_timestamp, INTERVAL '10' SECOND) as window_start,
+            TUMBLE_END(order_timestamp, INTERVAL '10' SECOND) as window_end
         FROM kafka_orders
         GROUP BY 
             product_id, 
-            TUMBLE(order_timestamp, INTERVAL '1' MINUTE)
+            TUMBLE(order_timestamp, INTERVAL '10' SECOND)
     """)
 
     # 4. Write to Postgres
+    print("💾 Writing to Postgres...")
     result_table.execute_insert("postgres_product_stats").wait()
+    print("✅ Job completed successfully!")
 
 if __name__ == '__main__':
     main()
