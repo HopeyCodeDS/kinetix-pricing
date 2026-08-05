@@ -30,7 +30,7 @@ def main():
             'topic' = 'dbserver1.public.orders',
             'properties.bootstrap.servers' = 'kafka:9092',
             'properties.group.id' = 'flink-pricing-group',
-            'scan.startup.mode' = 'earliest-offset',
+            'scan.startup.mode' = 'latest-offset',
             'format' = 'debezium-json'
         )
     """)
