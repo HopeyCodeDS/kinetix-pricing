@@ -20,6 +20,7 @@ curl -i -X POST -H "Accept:application/json" -H "Content-Type:application/json" 
     "topic.prefix": "dbserver1",
     "table.include.list": "public.orders",
     "plugin.name": "pgoutput",
+    "decimal.handling.mode": "double",
     "schema.history.internal.kafka.bootstrap.servers": "kafka:9092",
     "schema.history.internal.kafka.topic": "schema-changes.orders",
     "plugin.path": "/kafka/connect"
@@ -28,4 +29,4 @@ curl -i -X POST -H "Accept:application/json" -H "Content-Type:application/json" 
 EOF
 
 echo "\nConnector registered. Checking status..."
-curl -s http://localhost:8083/connectors/kinetix-orders-connector/status | jq .
+curl -s http://localhost:8083/connectors/kinetix-orders-connector/status | python -m json.tool
