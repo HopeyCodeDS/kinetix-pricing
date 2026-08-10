@@ -7,22 +7,26 @@ from sklearn.model_selection import train_test_split
 from sklearn.metrics import accuracy_score
 
 def get_features_from_db():
-    """Fetch real-time aggregated features from Postgres (written by Flink)"""
+    """Fetch rich, real-time aggregated features from Postgres (written by Flink)"""
     conn = psycopg2.connect(
         host="127.0.0.1", port="5433", dbname="kinetix_db", 
         user="postgres", password="supersecret"
     )
+    # UPDATED QUERY: Pulling velocity and revenue!
     query = """
-        SELECT product_id, avg_quantity, 
-               EXTRACT(HOUR FROM window_start) as hour_of_day
+        SELECT 
+            product_id, 
+            avg_quantity, 
+            order_velocity,
+            real_time_revenue,
+            EXTRACT(HOUR FROM window_start) as hour_of_day
         FROM product_stats
     """
     df = pd.read_sql_query(query, conn)
     conn.close()
     
-    # Create a mock target variable for demonstration 
-    # (e.g., is this a "high demand" period? avg_quantity > 10)
-    df['high_demand'] = (df['avg_quantity'] > 10).astype(int)
+    # Create a mock target variable: High demand if velocity > 1 OR avg_quantity > 10
+    df['high_demand'] = ((df['order_velocity'] > 1) | (df['avg_quantity'] > 10)).astype(int)
     return df
 
 def main():
