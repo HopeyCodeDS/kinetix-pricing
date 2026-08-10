@@ -61,3 +61,23 @@ class PricingModelService:
             "confidence": 0.95 if prediction else 0.80, # Simplified for robustness
             "recommended_price_multiplier": 1.2 if prediction else 1.0
         }
+    
+    # 4. The Magic: Stateful Windowed Aggregation with Richer Features
+    print('⚙️ Executing Stream Processing Pipeline (10-sec tumbling window)...')
+    result_table = table_env.sql_query('''
+        SELECT 
+            product_id,
+            AVG(quantity) as avg_quantity,
+            COUNT(order_id) as order_velocity,
+            SUM(total_amount) as real_time_revenue,
+            TUMBLE_START(proc_time, INTERVAL '10' SECOND) as window_start,
+            TUMBLE_END(proc_time, INTERVAL '10' SECOND) as window_end
+        FROM kafka_orders
+        GROUP BY 
+            product_id, 
+            TUMBLE(proc_time, INTERVAL '10' SECOND)
+    ''')
+
+
+
+    
