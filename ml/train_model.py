@@ -1,3 +1,4 @@
+import os
 import pandas as pd
 import psycopg2
 import mlflow
@@ -8,11 +9,15 @@ from sklearn.metrics import accuracy_score
 
 def get_features_from_db():
     """Fetch rich, real-time aggregated features from Postgres (written by Flink)"""
+
     conn = psycopg2.connect(
-        host="127.0.0.1", port="5433", dbname="kinetix_db", 
-        user="postgres", password="supersecret"
+        host=os.environ["POSTGRES_HOST"],
+        port=os.environ.get("POSTGRES_PORT", "5432"),
+        dbname=os.environ["POSTGRES_DB"],
+        user=os.environ["POSTGRES_USER"],
+        password=os.environ["POSTGRES_PASSWORD"],
     )
-    # UPDATED QUERY: Pulling velocity and revenue!
+    # Pulling velocity and revenue!
     query = """
         SELECT 
             product_id, 
@@ -22,9 +27,12 @@ def get_features_from_db():
             EXTRACT(HOUR FROM window_start) as hour_of_day
         FROM product_stats
     """
-    df = pd.read_sql_query(query, conn)
-    conn.close()
-    
+
+    try:
+        df = pd.read_sql_query(query, conn)
+    finally:
+        conn.close()
+
     # Create a mock target variable: High demand if velocity > 1 OR avg_quantity > 10
     df['high_demand'] = ((df['order_velocity'] > 1) | (df['avg_quantity'] > 10)).astype(int)
     return df
@@ -39,7 +47,7 @@ def main():
 
     print(f"✅ Loaded {len(df)} feature records.")
     
-    X = df[['avg_quantity', 'hour_of_day']]
+    X = df[['avg_quantity', 'order_velocity', 'real_time_revenue', 'hour_of_day']]
     y = df['high_demand']
     
     X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2, random_state=42)
