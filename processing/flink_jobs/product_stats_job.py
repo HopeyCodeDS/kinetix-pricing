@@ -66,6 +66,8 @@ def main():
         SELECT 
             product_id,
             AVG(quantity) as avg_quantity,
+            COUNT(order_id) as order_velocity,
+            SUM(total_amount) as real_time_revenue,
             TUMBLE_START(proc_time, INTERVAL '10' SECOND) as window_start,
             TUMBLE_END(proc_time, INTERVAL '10' SECOND) as window_end
         FROM kafka_orders
