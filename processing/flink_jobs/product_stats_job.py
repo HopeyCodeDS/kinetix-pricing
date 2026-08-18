@@ -33,7 +33,7 @@ def main():
     table_env.execute_sql('''
         CREATE TABLE postgres_product_stats (
             product_id INT, avg_quantity DOUBLE, order_velocity INT,
-            real_time_revenue DOUBLE, window_start TIMESTAMP(3), window_end TIMESTAMP(3),
+            real_time_revenue DOUBLE, peak_order_size INT, arpu DOUBLE, window_start TIMESTAMP(3), window_end TIMESTAMP(3),
             PRIMARY KEY (product_id, window_start) NOT ENFORCED
         ) WITH (
             'connector' = 'jdbc', 'url' = 'jdbc:postgresql://postgres:5432/kinetix_db',
@@ -41,14 +41,21 @@ def main():
         )
     ''')
 
+    # NEW LOGIC: Added MAX(quantity) and Revenue/Velocity
     result_table = table_env.sql_query('''
-        SELECT product_id, CAST(AVG(quantity) AS DOUBLE) as avg_quantity,
-               CAST(COUNT(order_id) AS INT) as order_velocity,
-               CAST(SUM(total_amount) AS DOUBLE) as real_time_revenue,
-               TUMBLE_START(proc_time, INTERVAL '10' SECOND) as window_start,
-               TUMBLE_END(proc_time, INTERVAL '10' SECOND) as window_end
+        SELECT 
+            product_id,
+            CAST(AVG(quantity) AS DOUBLE) as avg_quantity,
+            CAST(COUNT(order_id) AS INT) as order_velocity,
+            CAST(SUM(total_amount) AS DOUBLE) as real_time_revenue,
+            CAST(MAX(quantity) AS INT) as peak_order_size,
+            CAST(SUM(total_amount) / COUNT(order_id) AS DOUBLE) as arpu,
+            TUMBLE_START(proc_time, INTERVAL '10' SECOND) as window_start,
+            TUMBLE_END(proc_time, INTERVAL '10' SECOND) as window_end
         FROM kafka_orders
-        GROUP BY product_id, TUMBLE(proc_time, INTERVAL '10' SECOND)
+        GROUP BY 
+            product_id, 
+            TUMBLE(proc_time, INTERVAL '10' SECOND)
     ''')
 
     result_table.execute_insert('postgres_product_stats').wait()
